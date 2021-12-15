@@ -18,8 +18,7 @@
 ## Setup
 
 pip install pre-commit
-pre-commit install --hook-type commit-msg
-
+pre-commit install --hook-type post-commi
 
 ## Build package
 python setup.py check
