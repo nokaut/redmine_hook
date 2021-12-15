@@ -1,0 +1,10 @@
+- id: redmine-commit-msg
+  stages:
+    - commit-msg
+  name: Redmine Hook for git commits
+  description: "Sending info from commits to Redmine"
+  entry: python3 redmine-commit-msg.py
+  language: system
+  always_run: true
+  args: [ ".git/COMMIT_EDITMSG" ]
+
