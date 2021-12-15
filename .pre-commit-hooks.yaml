@@ -3,8 +3,10 @@
     - commit-msg
   name: Redmine Hook for git commits
   description: "Sending info from commits to Redmine"
-  entry: redmine_commit_msg
+  entry: redmine-commit-msg
   language: python
   always_run: true
-  args: [ ".git/COMMIT_EDITMSG" ]
+  args:
+    - ".git/COMMIT_EDITMSG"
+  types: [python]
 
