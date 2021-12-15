@@ -1,9 +1,24 @@
+# vim:ff=unix ts=2 sw=2 ai expandtab
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
     hooks:
-      - id: debug-statements
+    - id: debug-statements
   - repo: https://github.com/PyCQA/flake8
     rev: 4.0.1
     hooks:
-      - id: flake8
+    - id: flake8
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+    - id: check-added-large-files
+    - id: check-merge-conflict
+    - id: detect-private-key
+    - id: trailing-whitespace
+  - repo: git://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.1.10
+    hooks:
+    - id: forbid-crlf
+    - id: remove-crlf
+    - id: forbid-tabs
+    - id: remove-tabs
