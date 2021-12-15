@@ -26,7 +26,7 @@ def git_addr_repo(addr, commit_hash):
         REPO_URL_SCHEMA = os.getenv("REPO_URL_SCHEMA", "http")
         git_addr = trim.split(":", 1)
         url_syntax = "{}://{}/{}/commit/{}".format(
-            REPO_URL_SCHEMA, git_addr[0], git_addr[1], commit_hash
+            REPO_URL_SCHEMA, git_addr[0], git_addr[1].replace(".git",""), commit_hash
         )
     else:
         aws_region = os.getenv("AWS_REGION", "eu-west-1")
