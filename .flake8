@@ -1,0 +1,28 @@
+[flake8]
+doctests = True
+exclude =
+    .git,
+    .tox,
+    __pycache__,
+    venv,
+    migrations,
+    static,
+    sass,
+    templates,
+    vcr,
+    doc,
+    sql,
+    docker,
+    bin,
+    conf,
+    local_settings,
+    local_settings_*.py
+select =
+    # enable pyflakes
+    F,
+    # enable compilation error
+    E999,
+    # flake8-tidy-imports
+    I
+extend-ignore =
+    F403
