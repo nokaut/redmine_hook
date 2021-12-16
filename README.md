@@ -18,7 +18,8 @@
 ## Setup
 
 pip install pre-commit
-pre-commit install --hook-type post-commi
+pre-commit install --hook-type post-commit
+
 
 ## Build package
 python setup.py check
@@ -36,12 +37,15 @@ python setup.py install
 ```yaml
 repos:
   - repo: git://github.com/nokaut/redmine_hook
-    rev: v0.6
+    rev: v0.9
     hooks:
+      - id: redmine-commit-check
+        name: NKT redmine-commit-check validator
+        always_run: true
       - id: redmine-commit-msg
         stages:
-          - commit-msg
+          - post-commit
         name: NKT redmine-commit-msg
         always_run: true
-        args: [ ".git/COMMIT_EDITMSG" ]
+
 ```

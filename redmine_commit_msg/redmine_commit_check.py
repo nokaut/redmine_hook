@@ -30,9 +30,7 @@ def valid_commit_message(message):
 
 
 def main():
-    message_file = sys.argv[1:]
-    if not message_file:
-        message_file = ".git/COMMIT_EDITMSG"
+    message_file = sys.argv[1:][0] if sys.argv[1:] else ".git/COMMIT_EDITMSG"
 
     try:
         txt_file = open(message_file, "r")
