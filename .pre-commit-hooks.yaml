@@ -1,6 +1,6 @@
 - id: redmine-commit-msg
   stages:
-    - commit-msg
+    - post-commit
   name: Redmine Hook for git commits
   description: "Sending info from commits to Redmine"
   entry: redmine-commit-msg
@@ -10,3 +10,14 @@
     - ".git/COMMIT_EDITMSG"
   types: [python]
 
+- id: redmine-commit-check
+  stages:
+    - commit-msg
+  name: Redmine Hook for git commits
+  description: "Checking syntax of commit for Redmine"
+  entry: redmine-commit-check
+  language: python
+  always_run: true
+  args:
+    - ".git/COMMIT_EDITMSG"
+  types: [python]

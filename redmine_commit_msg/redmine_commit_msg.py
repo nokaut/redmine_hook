@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
 import os
-from redminelib import Redmine
-import sys
-import subprocess
 import re
+import subprocess
+import sys
+from redminelib import Redmine
 
 MESSAGE_REGEX = "(RM[#-]?)([0-9]{4,7})"
 BRANCHNAME_REGEX = "(RM[#-]?)([0-9]{4,7})-"
@@ -26,7 +26,7 @@ def git_addr_repo(addr, commit_hash):
         REPO_URL_SCHEMA = os.getenv("REPO_URL_SCHEMA", "http")
         git_addr = trim.split(":", 1)
         url_syntax = "{}://{}/{}/commit/{}".format(
-            REPO_URL_SCHEMA, git_addr[0], git_addr[1].replace(".git",""), commit_hash
+            REPO_URL_SCHEMA, git_addr[0], git_addr[1].replace(".git", ""), commit_hash
         )
     else:
         aws_region = os.getenv("AWS_REGION", "eu-west-1")
@@ -38,27 +38,15 @@ def git_addr_repo(addr, commit_hash):
 
 
 def current_branch_name():
-    return (
-        subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
-        .decode(sys.stdout.encoding)
-        .strip()
-    )
+    return subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode(sys.stdout.encoding).strip()
 
 
 def current_commithash():
-    return (
-        subprocess.check_output(["git", "rev-parse", "HEAD"])
-        .decode(sys.stdout.encoding)
-        .strip()
-    )
+    return subprocess.check_output(["git", "rev-parse", "HEAD"]).decode(sys.stdout.encoding).strip()
 
 
 def current_origin():
-    return (
-        subprocess.check_output(["git", "remote", "get-url", "origin"])
-        .decode(sys.stdout.encoding)
-        .strip()
-    )
+    return subprocess.check_output(["git", "remote", "get-url", "origin"]).decode(sys.stdout.encoding).strip()
 
 
 def get_redmine_issue(branch_name):
@@ -68,40 +56,42 @@ def get_redmine_issue(branch_name):
     return
 
 
-def valid_commit_message(message):
-    if not re.match(MESSAGE_REGEX, str(message)):
-        # ToDo - code to check branch is not created yet
-        # name = current_branch_name()
-        # issue_number = get_redmine_issue(name)
-        print("ERROR: Missing RedMine Issue in commmit message.")
-        print("Hint: MR#12345  bla bla bla your Commit message.")
-        return False
-    return True
+def get_redmine_issue_id(message):
+    if re.match(MESSAGE_REGEX, str(message)):
+        match = re.search(MESSAGE_REGEX, message)
+        rm_issue_id = match.group(2)
+        return rm_issue_id
+
+    if re.match(BRANCHNAME_REGEX, str(current_branch_name())):
+        match = re.search(BRANCHNAME_REGEX, str(current_branch_name()))
+        rm_issue_id = match.group(2)
+        return rm_issue_id
+
+    print("ERROR: Missing RedMine Issue in commmit message.")
+    print("Hint: MR#12345  bla bla bla your Commit message.")
+    return False
 
 
 def update_redmine_task(message):
-    match = re.search(MESSAGE_REGEX, message)
-    issue_id = match.group(2)
-    try:
-        redmine = Redmine(REDMINE_URL, key=REDMINE_TOKEN)
-        issue = redmine.issue.get(issue_id)
-        print("RM issue updated: {}".format(issue))
-    except:
-        print(
-            "Issue with connection to Redmine. Did you export REDMINE_TOKEN & REDMINE_URL envs?"
-        )
-        sys.exit(1)
-    git_addr_to_repo = git_addr_repo(str(current_origin()), str(current_commithash()))
-    note = "*Branch*: __{}__ | {}\n __{}__".format(
-        str(current_branch_name()), git_addr_to_repo, message
-    )
-    redmine.issue.update(issue_id, notes=note)
+    issue_id = get_redmine_issue_id(message)
+    if issue_id:
+        try:
+            redmine = Redmine(REDMINE_URL, key=REDMINE_TOKEN)
+            issue = redmine.issue.get(issue_id)
+            print("Redmine issue: .::( #{}# {} )::. will be updated".format(issue.id, str(issue)))
+        except:
+            print("Issue with connection to Redmine. Did you export REDMINE_TOKEN & REDMINE_URL envs?")
+            sys.exit(1)
+        git_addr_to_repo = git_addr_repo(str(current_origin()), str(current_commithash()))
+        note = "*Branch*: __{}__ | {}\n {}".format(str(current_branch_name()), git_addr_to_repo, message)
+        redmine.issue.update(issue_id, notes=note)
     return
 
 
 def main():
-    """Main function."""
-    message_file = sys.argv[1]
+    message_file = sys.argv[1:]
+    if not message_file:
+        message_file = ".git/COMMIT_EDITMSG"
 
     try:
         txt_file = open(message_file, "r")
@@ -109,11 +99,8 @@ def main():
     finally:
         txt_file.close()
 
-    if valid_commit_message(commit_message):
+    if REDMINE_URL and REDMINE_TOKEN:
         update_redmine_task(commit_message)
-        sys.exit(0)
-    else:
-        sys.exit(" ERROR - invalid commit message ")
 
 
 if __name__ == "__main__":
