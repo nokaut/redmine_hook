@@ -17,17 +17,25 @@
 
 ## Setup
 
+```bash
 pip install pre-commit
 pre-commit install --hook-type post-commit
+```
 
 
 ## Build package
+
+```bash
 python setup.py check
 python setup.py bdist_wheel
+```
 
 
 ## Install package
+
+```bash
 python setup.py install
+```
 
 
 ################
