@@ -8,6 +8,7 @@ from redminelib import Redmine
 
 MESSAGE_REGEX = "(RM[#-]?)([0-9]{4,7})"
 BRANCHNAME_REGEX = "(RM[#-]?)([0-9]{4,7})-"
+GIT_REPOSITORY = "(gitlab)|(github)"
 REDMINE_URL = os.getenv("REDMINE_URL")
 REDMINE_TOKEN = os.getenv("REDMINE_TOKEN")
 
@@ -22,7 +23,7 @@ def git_addr_trim(addr):
 
 def git_addr_repo(addr, commit_hash):
     trim = git_addr_trim(addr)
-    if re.findall("(\.git)", trim):
+    if re.findall(GIT_REPOSITORY, trim):
         REPO_URL_SCHEMA = os.getenv("REPO_URL_SCHEMA", "http")
         git_addr = trim.split(":", 1)
         url_syntax = "{}://{}/{}/commit/{}".format(
