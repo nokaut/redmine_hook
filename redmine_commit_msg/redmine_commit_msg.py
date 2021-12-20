@@ -57,12 +57,12 @@ def get_redmine_issue(branch_name):
 
 
 def get_redmine_issue_id(message):
-    if re.match(MESSAGE_REGEX, str(message)):
+    if re.findall(MESSAGE_REGEX, str(message)):
         match = re.search(MESSAGE_REGEX, message)
         rm_issue_id = match.group(2)
         return rm_issue_id
 
-    if re.match(BRANCHNAME_REGEX, str(current_branch_name())):
+    if re.findall(BRANCHNAME_REGEX, str(current_branch_name())):
         match = re.search(BRANCHNAME_REGEX, str(current_branch_name()))
         rm_issue_id = match.group(2)
         return rm_issue_id

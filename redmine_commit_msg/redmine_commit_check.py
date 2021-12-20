@@ -23,8 +23,8 @@ def get_redmine_issue(branch_name):
 
 
 def valid_commit_message(message):
-    if not re.match(MESSAGE_REGEX, str(message)):
-        if not re.match(BRANCHNAME_REGEX, str(current_branch_name())):
+    if not re.findall(MESSAGE_REGEX, str(message)):
+        if not re.findall(BRANCHNAME_REGEX, str(current_branch_name())):
             return False
     return True
 
