@@ -69,7 +69,7 @@ def get_redmine_issue_id(message):
         return rm_issue_id
 
     print("ERROR: Missing RedMine Issue in commmit message.")
-    print("Hint: MR#12345  bla bla bla your Commit message.")
+    print("Hint: RM#12345  bla bla bla your Commit message.")
     return False
 
 
