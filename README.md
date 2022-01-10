@@ -45,7 +45,7 @@ python setup.py install
 ```yaml
 repos:
   - repo: git://github.com/nokaut/redmine_hook
-    rev: v0.9
+    rev: v0.9.5
     hooks:
       - id: redmine-commit-check
         name: NKT redmine-commit-check validator
