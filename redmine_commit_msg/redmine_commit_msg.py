@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import getopt
 import os
 import re
 import subprocess
@@ -8,10 +9,9 @@ from redminelib import Redmine
 
 MESSAGE_REGEX = "(RM[#-]?)([0-9]{4,7})"
 BRANCHNAME_REGEX = "(RM[#-]?)([0-9]{4,7})-"
-GIT_REPOSITORY = "(gitlab)|(github)"
+GIT_REPOSITORY_REGEX = "(gitlab)|(github)"
 REDMINE_URL = os.getenv("REDMINE_URL")
 REDMINE_TOKEN = os.getenv("REDMINE_TOKEN")
-
 
 def git_addr_trim(addr):
     after_trim = addr.replace("http://", "")
@@ -21,9 +21,9 @@ def git_addr_trim(addr):
     return after_trim
 
 
-def git_addr_repo(addr, commit_hash):
+def git_addr_repo(git_repository, addr, commit_hash):
     trim = git_addr_trim(addr)
-    if re.findall(GIT_REPOSITORY, trim):
+    if re.findall(git_repository, trim):
         REPO_URL_SCHEMA = os.getenv("REPO_URL_SCHEMA", "http")
         git_addr = trim.split(":", 1)
         url_syntax = "{}://{}/{}/commit/{}".format(
@@ -73,7 +73,7 @@ def get_redmine_issue_id(message):
     return False
 
 
-def update_redmine_task(message):
+def update_redmine_task(message, git_repository):
     issue_id = get_redmine_issue_id(message)
     if issue_id:
         try:
@@ -83,14 +83,20 @@ def update_redmine_task(message):
         except:
             print("Issue with connection to Redmine. Did you export REDMINE_TOKEN & REDMINE_URL envs?")
             sys.exit(1)
-        git_addr_to_repo = git_addr_repo(str(current_origin()), str(current_commithash()))
+        git_addr_to_repo = git_addr_repo(git_repository, str(current_origin()), str(current_commithash()))
         note = "*Branch*: __{}__ | {}\n {}".format(str(current_branch_name()), git_addr_to_repo, message)
         redmine.issue.update(issue_id, notes=note)
     return
 
 
 def main():
-    message_file = sys.argv[1:][0] if sys.argv[1:] else ".git/COMMIT_EDITMSG"
+    GIT_REPOSITORY = GIT_REPOSITORY_REGEX
+    options, remainder = getopt.getopt(sys.argv[1:], 'r', ['custom_repo=', ])
+    for opt, arg in options:
+        if opt in ('r', '--custom_repo'):
+            GIT_REPOSITORY = arg
+
+    message_file = remainder[1:][0] if remainder[1:] else ".git/COMMIT_EDITMSG"
 
     try:
         txt_file = open(message_file, "r")
@@ -99,7 +105,7 @@ def main():
         txt_file.close()
 
     if REDMINE_URL and REDMINE_TOKEN:
-        update_redmine_task(commit_message)
+        update_redmine_task(commit_message, GIT_REPOSITORY)
 
 
 if __name__ == "__main__":
